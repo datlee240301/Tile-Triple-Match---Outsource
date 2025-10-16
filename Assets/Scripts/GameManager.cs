@@ -51,7 +51,7 @@ public class GameManager : MonoBehaviour
     MusicManager musicManager;
 
     [Header("Gameplay Settings")] [SerializeField]
-    private float clickCooldown = 0.2f; // ⏱ Thời gian chờ sau mỗi click
+    private float clickCooldown = 0f; // ⏱ Thời gian chờ sau mỗi click
 
     private float lastClickTime = -999f;
 

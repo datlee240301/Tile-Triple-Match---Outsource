@@ -95,14 +95,14 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "game::@d02bb112ea9f9c2ed29f",
-					"jsonFile" : "target-game-RelWithDebInfo-6831362b5f327d9b4f20.json",
+					"jsonFile" : "target-game-RelWithDebInfo-98a25ebb96481fe46d4b.json",
 					"name" : "game",
 					"projectIndex" : 1
 				},
 				{
 					"directoryIndex" : 2,
 					"id" : "swappywrapper::@7e25bd1f32ce224db4e9",
-					"jsonFile" : "target-swappywrapper-RelWithDebInfo-1f55cd309d2586b6c702.json",
+					"jsonFile" : "target-swappywrapper-RelWithDebInfo-d9c9c4fe139b4359f382.json",
 					"name" : "swappywrapper",
 					"projectIndex" : 2
 				}
@@ -112,7 +112,7 @@
 	"kind" : "codemodel",
 	"paths" : 
 	{
-		"build" : "C:/Users/Dat Lee/Videos/Captures/File/Tile-Triple-Match---Outsource/.utmp/RelWithDebInfo/3263z0q3/armeabi-v7a",
+		"build" : "C:/Users/Dat Lee/Videos/Captures/File/Tile-Triple-Match---Outsource/.utmp/RelWithDebInfo/3263z0q3/x86_64",
 		"source" : "C:/Users/Dat Lee/Videos/Captures/File/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/src/main/cpp"
 	},
 	"version" : 

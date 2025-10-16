@@ -68,6 +68,7 @@ public class Tile : MonoBehaviour
         transform.DOScale(scaleInTray, 0.2f);
 
         if (iconSR) iconSR.sortingOrder = 4; // luôn nổi trong khay
+        SetActiveState(true);
     }
 
     public void MoveToBoard(Vector3 pos, Action onArrive = null)

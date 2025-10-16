@@ -2,7 +2,7 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "C:/Users/Dat Lee/Videos/Captures/File/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3263z0q3/obj/x86_64/libgame.so"
+			"path" : "C:/Users/Dat Lee/Videos/Captures/File/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/3263z0q3/obj/arm64-v8a/libgame.so"
 		}
 	],
 	"backtrace" : 1,
@@ -95,7 +95,7 @@
 			],
 			"sysroot" : 
 			{
-				"path" : "C:/Program Files/Unity/Hub/Editor/6000.2.0f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
+				"path" : "C:/Program Files/Unity/Hub/Editor/6000.2.7f2/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
 			}
 		}
 	],
@@ -115,7 +115,7 @@
 			},
 			{
 				"backtrace" : 2,
-				"fragment" : "\"C:\\Users\\Dat Lee\\.gradle\\caches\\8.11\\transforms\\cf11df13d2fd9a509170edfac64a04e6\\transformed\\jetified-games-activity-3.0.5\\prefab\\modules\\game-activity_static\\libs\\android.x86_64\\libgame-activity_static.a\"",
+				"fragment" : "\"C:\\Users\\Dat Lee\\.gradle\\caches\\8.11\\transforms\\cf11df13d2fd9a509170edfac64a04e6\\transformed\\jetified-games-activity-3.0.5\\prefab\\modules\\game-activity_static\\libs\\android.arm64-v8a\\libgame-activity_static.a\"",
 				"role" : "libraries"
 			},
 			{
@@ -136,7 +136,7 @@
 		"language" : "CXX",
 		"sysroot" : 
 		{
-			"path" : "C:/Program Files/Unity/Hub/Editor/6000.2.0f1/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
+			"path" : "C:/Program Files/Unity/Hub/Editor/6000.2.7f2/Editor/Data/PlaybackEngines/AndroidPlayer/NDK/toolchains/llvm/prebuilt/windows-x86_64/sysroot"
 		}
 	},
 	"name" : "game",

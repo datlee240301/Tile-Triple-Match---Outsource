@@ -6525,7 +6525,7 @@ MonoBehaviour:
   fireworksEffects:
   - {fileID: 1840901391}
   - {fileID: 762736101}
-  clickCooldown: 0.4
+  clickCooldown: 0
   currentLevelId: 0
 --- !u!4 &822961874
 Transform:
