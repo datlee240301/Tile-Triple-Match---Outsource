@@ -49,8 +49,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject[] fireworksEffects;
     SoundManager soundManager;
     MusicManager musicManager;
-    [Header("Gameplay Settings")]
-    [SerializeField] private float clickCooldown = 0.2f; // ⏱ Thời gian chờ sau mỗi click
+
+    [Header("Gameplay Settings")] [SerializeField]
+    private float clickCooldown = 0.2f; // ⏱ Thời gian chờ sau mỗi click
+
     private float lastClickTime = -999f;
 
     private struct UndoStep
@@ -139,7 +141,7 @@ public class GameManager : MonoBehaviour
         // ✅ kiểm tra cooldown
         if (Time.time - lastClickTime < clickCooldown) return;
         lastClickTime = Time.time;
-
+        SoundManager.instance.PlayClick1Tile();
         undoStack.Push(new UndoStep { tile = t, prevPos = t.transform.position });
         InsertTileToTray(t);
     }
@@ -152,53 +154,136 @@ public class GameManager : MonoBehaviour
         return trayRoot.position;
     }
 
-    void CheckTripleAndPruneUndo()
+    // Thay thế hàm cũ bằng hàm này trong GameManager
+void CheckTripleAndPruneUndo()
+{
+    // Tìm nhóm >= 3 từ trạng thái hiện tại của tray
+    var groups = tray.GroupBy(x => x.id).Where(g => g.Count() >= 3).ToList();
+    if (groups.Count == 0)
     {
-        var groups = tray.GroupBy(x => x.id).Where(g => g.Count() >= 3).ToList();
-        if (groups.Count > 0)
+        // Không có nhóm nào -> vẫn prune undo và check win/lose 
+        PruneDeadSteps();
+        if (allTiles.Count == 0) ShowWinPanel();
+        if (tray.Count >= trayCapacity) ShowLosePanel();
+        return;
+    }
+
+    // Với mỗi nhóm, ta sẽ xác định 3 tile để xóa (ưu tiên từ phải sang trái - newest)
+    List<Tile> allToDestroy = new List<Tile>();
+
+    foreach (var g in groups)
+    {
+        int need = 3;
+        // thu thập indices (từ phải sang trái) trước khi chỉnh sửa tray
+        for (int i = tray.Count - 1; i >= 0 && need > 0; i--)
         {
-            foreach (var g in groups)
+            if (tray[i].id == g.Key)
             {
-                int need = 3;
-                List<Tile> toDestroy = new List<Tile>();
-
-                // lấy 3 tile cùng loại (ưu tiên tile mới nhất + các tile trước nó)
-                for (int i = tray.Count - 1; i >= 0 && need > 0; i--)
-                {
-                    if (tray[i].id == g.Key)
-                    {
-                        var tile = tray[i];
-                        tray.RemoveAt(i);
-                        allTiles.Remove(tile);
-                        RemoveUndoStepsOf(tile);
-                        toDestroy.Add(tile);
-                        need--;
-                    }
-                }
-
-                // phá huỷ từng tile
-                foreach (var tile in toDestroy)
-                {
-                    tile.DestroyAnim(() =>
-                    {
-                        // khi tile cuối cùng phá xong → cập nhật lại vị trí tray
-                        if (tile == toDestroy.Last())
-                        {
-                            for (int i = 0; i < tray.Count; i++)
-                                tray[i].MoveToTray(GetTrayPos(i));
-                        }
-                    });
-                }
-
-                soundManager.PlayMatch3TileSound();
+                allToDestroy.Add(tray[i]);
+                need--;
             }
         }
-
-        PruneDeadSteps();
-
-        if (allTiles.Count == 0) ShowWinPanel();
-        if (tray.Count >= trayCapacity && groups.Count == 0) ShowLosePanel();
     }
+
+    if (allToDestroy.Count == 0)
+    {
+        // không có gì để xóa (phòng ngừa)
+        PruneDeadSteps();
+        if (allTiles.Count == 0) ShowWinPanel();
+        if (tray.Count >= trayCapacity) ShowLosePanel();
+        return;
+    }
+
+    // Trước khi play destroy anim: xóa các tile đó ra khỏi dữ liệu (tray + allTiles) & undoSteps
+    foreach (var tile in allToDestroy)
+    {
+        // Nếu tile vẫn nằm trong tray thì remove
+        int idx = tray.IndexOf(tile);
+        if (idx >= 0)
+            tray.RemoveAt(idx);
+
+        if (allTiles.Contains(tile))
+            allTiles.Remove(tile);
+
+        RemoveUndoStepsOf(tile);
+    }
+
+    // Cập nhật vị trí tray cho các tile còn lại *sau khi destroy xong*
+    // Play destroy cho từng tile; chờ tất cả hoàn thành rồi cập nhật tray và tiếp tục vòng tiếp theo (nếu có)
+    StartCoroutine(PlayDestroyAndThenReflow(allToDestroy));
+}
+
+System.Collections.IEnumerator PlayDestroyAndThenReflow(List<Tile> toDestroy)
+{
+    if (toDestroy == null || toDestroy.Count == 0)
+    {
+        // nothing
+        yield break;
+    }
+
+    int remaining = toDestroy.Count;
+    // start all destroy anims (DestroyAnim thực hiện hủy object ở OnComplete)
+    foreach (var tile in toDestroy)
+    {
+        // bảo đảm tile còn tồn tại trước khi gọi
+        if (tile != null)
+        {
+            tile.DestroyAnim(() =>
+            {
+                remaining--;
+            });
+        }
+        else
+        {
+            remaining--;
+        }
+    }
+
+    // chờ đến khi tất cả destroy callback được gọi (hoặc timeout phòng ngừa)
+    float timeout = 2.5f; // phòng ngừa trường hợp callback không được gọi
+    float elapsed = 0f;
+    while (remaining > 0 && elapsed < timeout)
+    {
+        elapsed += Time.deltaTime;
+        yield return null;
+    }
+
+    // Sau khi destroyed xong -> cập nhật lại vị trí tray cho các tile còn lại
+    for (int i = 0; i < tray.Count; i++)
+    {
+        // bảo đảm index hợp lệ
+        if (i < trayCapacity)
+            tray[i].MoveToTray(GetTrayPos(i));
+    }
+
+    // Prune undo stack (loại bỏ các step chứa tile null)
+    PruneDeadSteps();
+
+    // Kiểm tra Win / Lose
+    if (allTiles.Count == 0)
+    {
+        ShowWinPanel();
+        yield break;
+    }
+
+    if (tray.Count >= trayCapacity)
+    {
+        // Nếu tray đầy và không có nhóm mới thì thua
+        // ta kiểm tra có nhóm mới không trước khi ShowLosePanel
+        var groups = tray.GroupBy(x => x.id).Where(g => g.Count() >= 3).ToList();
+        if (groups.Count == 0)
+        {
+            ShowLosePanel();
+            yield break;
+        }
+    }
+
+    // Nếu có khả năng chain reaction (sau khi reflow) — gọi lại kiểm tra để ăn tiếp
+    // DÙNG yield nhỏ để đảm bảo các MoveToTray khởi động xong
+    yield return new WaitForSeconds(0.05f);
+    CheckTripleAndPruneUndo();
+}
+
 
 
     void RemoveUndoStepsOf(Tile tile)
@@ -299,23 +384,110 @@ public class GameManager : MonoBehaviour
     }
 
     // ======================== HINT ========================
-    void OnHintButton()
+    // ======================== HINT ========================
+void OnHintButton()
+{
+    if (isHintRunning || isShuffling) return;
+
+    int traySpace = trayCapacity - tray.Count;
+    if (traySpace <= 0)
     {
-        if (isHintRunning || isShuffling) return;
+        Debug.Log("❌ Không đủ chỗ trống trong tray để dùng Hint!");
+        return;
+    }
 
-        if (hintCount > 0)
+    if (hintCount > 0)
+    {
+        // ✅ Ưu tiên 1: Tray có 2 + Board có 1
+        if (HintTrayPair()) return;
+
+        // ✅ Ưu tiên 2: Board có 2 + Tray có 1
+        if (HintBoardPairWithTray()) return;
+
+        // ✅ Fallback: Tìm 3 tile cùng loại bất kỳ (cả tile tối màu)
+        var group = allTiles
+            .Where(t => t != null && !t.isInTray)
+            .GroupBy(t => t.id)
+            .FirstOrDefault(g => g.Count() >= 3);
+
+        if (group == null)
         {
-            if (HintTrayPair()) return; // ✅ Ưu tiên 1
-            if (HintBoardPairWithTray()) return; // ✅ Ưu tiên 2
+            Debug.Log("Không có nhóm 3 tile nào để ăn!");
+            return;
+        }
 
-            // ❌ fallback về chức năng hint cũ
-            var group = allTiles.Where(t => t != null && !t.isInTray && t.IsSelectable())
-                .GroupBy(t => t.id).FirstOrDefault(g => g.Count() >= 3);
+        // ⚠️ kiểm tra chỗ trống trước khi ăn
+        var tilesToEat = group.Take(3).ToList();
+        if (traySpace < tilesToEat.Count)
+        {
+            Debug.Log("❌ Không đủ chỗ trong tray để dùng Hint 3 tile!");
+            return;
+        }
 
-            if (group == null)
+        hintCount--;
+        PlayerPrefs.SetInt("HintCount", hintCount);
+        UpdateHintUI();
+
+        isHintRunning = true;
+        StartCoroutine(HintSequence(tilesToEat));
+    }
+    else
+    {
+        int tickets = PlayerPrefs.GetInt(StringManager.ticketNumber, 0);
+        if (tickets >= hintCost)
+        {
+            uiManager.MinusTicket(hintCost);
+            hintCount = 3;
+            PlayerPrefs.SetInt("HintCount", hintCount);
+            UpdateHintUI();
+        }
+        else notifyPanelObject.PanelFadeIn();
+    }
+}
+
+
+// ✅ Hint loại 1: Tray có 2 tile giống nhau + board có 1 tile còn lại
+bool HintTrayPair()
+{
+    var pair = tray.GroupBy(x => x.id).FirstOrDefault(g => g.Count() == 2);
+    if (pair == null) return false;
+
+    int targetId = pair.Key;
+    var candidate = allTiles.FirstOrDefault(t => t != null && !t.isInTray && t.id == targetId);
+    if (candidate == null) return false;
+
+    // ⚠️ kiểm tra chỗ trống
+    if (trayCapacity - tray.Count < 1)
+    {
+        Debug.Log("❌ Không đủ chỗ trong tray để dùng Hint (TrayPair)");
+        return false;
+    }
+
+    hintCount--;
+    PlayerPrefs.SetInt("HintCount", hintCount);
+    UpdateHintUI();
+
+    isHintRunning = true;
+    StartCoroutine(HintSequence(new List<Tile> { candidate }));
+    return true;
+}
+
+
+// ✅ Hint loại 2: Board có 2 tile giống nhau + tray có 1 tile cùng loại
+bool HintBoardPairWithTray()
+{
+    var trayIds = tray.Select(t => t.id).ToHashSet();
+
+    foreach (int id in trayIds)
+    {
+        var candidates = allTiles.Where(t => t != null && !t.isInTray && t.id == id).Take(2).ToList();
+        if (candidates.Count == 2)
+        {
+            // ⚠️ kiểm tra chỗ trống
+            if (trayCapacity - tray.Count < candidates.Count)
             {
-                Debug.Log("Không có gì để ăn!");
-                return;
+                Debug.Log("❌ Không đủ chỗ trong tray để dùng Hint (BoardPairWithTray)");
+                return false;
             }
 
             hintCount--;
@@ -323,21 +495,15 @@ public class GameManager : MonoBehaviour
             UpdateHintUI();
 
             isHintRunning = true;
-            StartCoroutine(HintSequence(group.Take(3).ToList()));
-        }
-        else
-        {
-            int tickets = PlayerPrefs.GetInt(StringManager.ticketNumber, 0);
-            if (tickets >= hintCost)
-            {
-                uiManager.MinusTicket(hintCost);
-                hintCount = 3;
-                PlayerPrefs.SetInt("HintCount", hintCount);
-                UpdateHintUI();
-            }
-            else notifyPanelObject.PanelFadeIn();
+            StartCoroutine(HintSequence(candidates));
+            return true;
         }
     }
+
+    return false;
+}
+
+
 
 
     void UpdateHintUI()
@@ -495,48 +661,8 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // ✅ Hint loại 1: Tray có 2 tile giống nhau + board có 1 tile còn lại
-    bool HintTrayPair()
-    {
-        var pair = tray.GroupBy(x => x.id).FirstOrDefault(g => g.Count() == 2);
-        if (pair == null) return false;
+    
 
-        int targetId = pair.Key;
-        var candidate = allTiles.FirstOrDefault(t => t != null && !t.isInTray && t.id == targetId && t.IsSelectable());
-        if (candidate == null) return false;
-
-        hintCount--;
-        PlayerPrefs.SetInt("HintCount", hintCount);
-        UpdateHintUI();
-
-        isHintRunning = true;
-        StartCoroutine(HintSequence(new List<Tile> { candidate }));
-        return true;
-    }
-
-// ✅ Hint loại 2: Board có 2 tile giống nhau + tray có 1 tile cùng loại
-    bool HintBoardPairWithTray()
-    {
-        var trayIds = tray.Select(t => t.id).ToHashSet();
-
-        foreach (int id in trayIds)
-        {
-            var candidates = allTiles.Where(t => t != null && !t.isInTray && t.id == id && t.IsSelectable()).Take(2)
-                .ToList();
-            if (candidates.Count == 2)
-            {
-                hintCount--;
-                PlayerPrefs.SetInt("HintCount", hintCount);
-                UpdateHintUI();
-
-                isHintRunning = true;
-                StartCoroutine(HintSequence(candidates));
-                return true;
-            }
-        }
-
-        return false;
-    }
 
     void InsertTileToTray(Tile t)
     {

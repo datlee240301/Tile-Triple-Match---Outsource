@@ -86,7 +86,7 @@ public class Tile : MonoBehaviour
     public void DestroyAnim(Action onComplete)
     {
         transform.DOKill();
-
+        soundManager.PlayMatch3TileSound();
         // Nếu có prefab starEffect → tạo ra trước khi tile biến mất
         if (starEffect != null)
         {
@@ -132,7 +132,7 @@ public class Tile : MonoBehaviour
     {
         if (gameManager != null)
         {
-            if(gameManager.currentLevelId ==1)
+            if (gameManager.currentLevelId == 1)
                 scaleInTray = 0.5f;
             else
                 scaleInTray = 0.75f;
@@ -175,10 +175,9 @@ public class Tile : MonoBehaviour
         // Nếu tìm được tile "top" hợp lệ → click nó
         if (best != null)
         {
-            if (soundManager != null) soundManager.PlayClick1Tile();
+            //if (soundManager != null) soundManager.PlayClick1Tile();
             best.onClicked?.Invoke(best);
         }
         // Nếu không có tile hợp lệ (ví dụ đang bị UI che) thì bỏ qua
     }
-
 }

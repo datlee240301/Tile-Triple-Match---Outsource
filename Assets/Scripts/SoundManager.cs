@@ -12,6 +12,7 @@ public class SoundManager : MonoBehaviour
     [SerializeField] AudioClip uiClickSound;
     [SerializeField] AudioClip winSound;
     [SerializeField] AudioClip loseSound;
+    int currentSoundId;
 
     private void Awake()
     {
@@ -21,6 +22,16 @@ public class SoundManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        currentSoundId = PlayerPrefs.GetInt(StringManager.soundId, 1);
+        PlayerPrefs.SetInt(StringManager.soundId, currentSoundId);
+        if (PlayerPrefs.GetInt(StringManager.soundId) == 0)
+        {
+            audioSource.volume = 0;
+        }
+        else
+        {
+            audioSource.volume = 1f;
+        }
     }
     public void PlayMatch3TileSound()
     {
