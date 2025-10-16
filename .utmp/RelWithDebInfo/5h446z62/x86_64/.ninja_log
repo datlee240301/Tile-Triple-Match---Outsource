@@ -1,0 +1,23 @@
+# ninja log v5
+21	2974	7817798570504124	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	8ffb65d2a4558791
+84	327	7817798544710291	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	41ec0641adbf51a7
+44	2394	7817798564836520	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	246f3f8c94204dfa
+329	548	7817798546539652	F:/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5h446z62/obj/x86_64/libswappywrapper.so	df0f6b1e2f1a7ec9
+53	2293	7817798563890160	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	31b188ddbc05b0e
+64	2713	7817798567565112	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	987c0f851ae7ff6d
+11	2531	7817798565021062	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	8987232069ed924
+1	2538	7817798565307438	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	c3b4c7bd7e8a23d1
+75	2535	7817798565256079	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	3d278cef780c2af5
+34	2870	7817798569520458	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	44832dd83b54bd4f
+2974	3193	7817798573344559	F:/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5h446z62/obj/x86_64/libgame.so	93155ed7239537d0
+147	400	7817802868556977	FramePacing/CMakeFiles/swappywrapper.dir/UnitySwappyWrapper.cpp.o	41ec0641adbf51a7
+401	645	7817802870593787	F:/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5h446z62/obj/x86_64/libswappywrapper.so	df0f6b1e2f1a7ec9
+41	1657	7817802881100382	GameActivity/CMakeFiles/game.dir/UGAEntry.cpp.o	246f3f8c94204dfa
+90	1685	7817802881361974	GameActivity/CMakeFiles/game.dir/UGAInputKeyEvent.cpp.o	31b188ddbc05b0e
+22	1709	7817802881520980	GameActivity/CMakeFiles/game.dir/UGAConfiguration.cpp.o	8987232069ed924
+32	1726	7817802881740922	GameActivity/CMakeFiles/game.dir/UGADebug.cpp.o	c3b4c7bd7e8a23d1
+70	1730	7817802881756770	GameActivity/CMakeFiles/game.dir/UGAInputMotionEvent.cpp.o	3d278cef780c2af5
+132	1890	7817802883346655	GameActivity/CMakeFiles/game.dir/UGASoftKeyboard.cpp.o	987c0f851ae7ff6d
+111	2042	7817802884890941	GameActivity/CMakeFiles/game.dir/UGAInput.cpp.o	44832dd83b54bd4f
+9	2075	7817802885197532	GameActivity/CMakeFiles/game.dir/UGAApplication.cpp.o	8ffb65d2a4558791
+2075	2181	7817802886400055	F:/Tile-Triple-Match---Outsource/Library/Bee/Android/Prj/IL2CPP/Gradle/unityLibrary/build/intermediates/cxx/RelWithDebInfo/5h446z62/obj/x86_64/libgame.so	93155ed7239537d0
